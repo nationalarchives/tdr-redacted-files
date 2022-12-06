@@ -15,4 +15,4 @@ lazy val root = (project in file("."))
     )
   )
 
-(assembly / assemblyJarName) := "redacted-files"
+(assembly / assemblyJarName) := "redacted-files.jar"
