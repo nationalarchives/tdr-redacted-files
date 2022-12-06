@@ -12,7 +12,6 @@ lazy val root = (project in file("."))
       circeParser,
       circeGeneric,
       scalaTest % Test
-    )
+    ),
+    assembly / assemblyJarName := "redacted-files.jar"
   )
-
-(assembly / assemblyJarName) := "redacted-files.jar"
