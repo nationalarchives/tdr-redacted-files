@@ -86,7 +86,7 @@ class LambdaTest extends AnyFlatSpec with TableDrivenPropertyChecks {
   }
 
   private def runLambda(files: List[String]): Result = {
-    val inputJson = files.map(fileName => File(UUID.randomUUID(), fileName))
+    val inputJson = Input(files.map(fileName => File(UUID.randomUUID(), fileName)))
       .asJson.printWith(Printer.noSpaces)
       .getBytes()
     val baos = new ByteArrayInputStream(inputJson)

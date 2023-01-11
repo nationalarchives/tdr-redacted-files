@@ -47,8 +47,8 @@ class Lambda {
 
   def run(inputStream: InputStream, outputStream: OutputStream): Unit = {
     val input = Source.fromInputStream(inputStream).getLines().mkString
-    val output = decode[List[File]](input).map(files => {
-      getRedactedFiles(files).foldLeft(Result(Nil,  Nil))((res, redactedResult) => {
+    val output = decode[Input](input).map(input => {
+      getRedactedFiles(input.results).foldLeft(Result(Nil,  Nil))((res, redactedResult) => {
         redactedResult match {
           case errors: RedactedErrors => res.copy(errors = errors :: res.errors)
           case pairs: RedactedFilePairs => res.copy(redactedFiles = pairs :: res.redactedFiles)
@@ -75,4 +75,6 @@ object Lambda {
   case class FileName(fileId: UUID, filePath: String, fileName: String, fileNameNoExtension: String)
 
   case class File(fileId: UUID, originalPath: String)
+
+  case class Input(results: List[File])
 }
