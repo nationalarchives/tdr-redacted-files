@@ -1,18 +1,33 @@
 package uk.gov.nationalarchives
 
+import com.github.tomakehurst.wiremock.WireMockServer
+import com.github.tomakehurst.wiremock.client.WireMock.{anyUrl, get, ok, put, urlEqualTo}
+import com.github.tomakehurst.wiremock.http.RequestMethod
 import io.circe.Printer
+import io.circe.Printer.noSpaces
 import io.circe.syntax._
 import io.circe.parser.decode
 import io.circe.generic.auto._
+import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers._
 import org.scalatest.prop.{TableDrivenPropertyChecks, TableFor1, TableFor2}
-import uk.gov.nationalarchives.Lambda._
+import uk.gov.nationalarchives.BackendCheckUtils._
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import java.util.UUID
+import scala.jdk.CollectionConverters._
 
-class LambdaTest extends AnyFlatSpec with TableDrivenPropertyChecks {
+class LambdaTest extends AnyFlatSpec with TableDrivenPropertyChecks with BeforeAndAfterAll {
+  override def beforeAll(): Unit = {
+    wiremockS3Server.stubFor(put(anyUrl()).willReturn(ok()))
+    wiremockS3Server.start()
+  }
+
+  override def afterAll(): Unit = {
+    wiremockS3Server.stop()
+  }
+
   val validTestData: TableFor2[List[String], Map[String, String]] = Table(
     ("files", "result"),
     (List("MyDocument.updated_R.docx", "MyDocument.updated.docx"), Map("MyDocument.updated_R.docx" -> "MyDocument.updated.docx")),
@@ -85,14 +100,34 @@ class LambdaTest extends AnyFlatSpec with TableDrivenPropertyChecks {
     }
   }
 
-  private def runLambda(files: List[String]): Result = {
-    val inputJson = Input(files.map(fileName => File(UUID.randomUUID(), fileName)))
-      .asJson.printWith(Printer.noSpaces)
-      .getBytes()
-    val baos = new ByteArrayInputStream(inputJson)
+  val wiremockS3Server = new WireMockServer(9005)
+
+  private def runLambda(files: List[String]): RedactedResults = {
+    val s3Input = setupS3(files)
+    val baos = new ByteArrayInputStream(s3Input.getBytes())
     val output = new ByteArrayOutputStream()
     new Lambda().run(baos, output)
-    val res = output.toByteArray.map(_.toChar).mkString
-    decode[Result](res).toOption.get
+    output.toByteArray.map(_.toChar).mkString
+
+    wiremockS3Server.getAllServeEvents.asScala.find(_.getRequest.getMethod == RequestMethod.PUT)
+      .flatMap(ev => {
+        val bodyString = ev.getRequest.getBodyAsString.split("\r\n")(1)
+        decode[Input](bodyString).toOption
+      }).get.redactedResults
+  }
+
+  private def setupS3(files: List[String]): String = {
+    val mappedFiles = files
+      .map(fileName => File(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "standard", "1", "checksum", fileName, FileCheckResults(Nil, Nil, Nil)))
+    val inputJson = Input(mappedFiles, RedactedResults(Nil, Nil), StatusResult(Nil))
+      .asJson.printWith(Printer.noSpaces)
+    val s3Input = S3Input("testKey", "testBucket")
+    putJsonFile(s3Input, inputJson).asJson.printWith(noSpaces)
+  }
+
+  private def putJsonFile(s3Input: S3Input, inputJson: String): S3Input = {
+    wiremockS3Server
+      .stubFor(get(urlEqualTo(s"/${s3Input.bucket}/${s3Input.key}")).willReturn(ok(inputJson)))
+    s3Input
   }
 }

@@ -8,10 +8,17 @@ lazy val root = (project in file("."))
   .settings(
     name := "tdr-redacted-files",
     libraryDependencies ++= Seq(
+      backendCheckUtils,
       circeCore,
       circeParser,
       circeGeneric,
-      scalaTest % Test
+      scalaTest % Test,
+      wiremock % Test
     ),
     assembly / assemblyJarName := "redacted-files.jar"
   )
+
+(assembly / assemblyMergeStrategy) := {
+  case PathList("META-INF", xs@_*) => MergeStrategy.discard
+  case _ => MergeStrategy.first
+}

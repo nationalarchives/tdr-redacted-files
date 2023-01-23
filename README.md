@@ -1,50 +1,55 @@
 # TDR Redacted Files
 
-This lambda is passed a list of file paths and if there is a file matching the redacted file pattern, either finds the
+This lambda is passed an object with an S3 key and bucket.
+It gets that object from S3 which returns a json object.
+The results key in that json is a list of file paths and if there is a file matching the redacted file pattern, either finds the
 original file or returns an error.
 If the file does not match the redacted file pattern, it returns nothing.
+The example input here is only part of the full json object but these are the only fields checked. 
 
 Given the following input:
 
 ```json
-[
-  {
-    "fileId": "079bc416-180c-45cc-a943-7c6d63c21d57",
-    "originalPath": "/a/path/file.txt"
-  },
-  {
-    "fileId": "9e31f5f3-7240-4802-9442-766307fc9501",
-    "originalPath": "/a/path/file_R1.txt"
-  },
-  {
-    "fileId": "2cfc0597-53d4-4a10-aa5a-e49be49aaa9b",
-    "originalPath": "/a/path/file2_R.txt"
-  },
-  {
-    "fileId": "4ad0037f-45ae-410a-9e0f-31bece7cef85",
-    "originalPath": "/another/path/file3_R.txt"
-  },
-  {
-    "fileId": "6de7cc09-0bf2-4216-ae78-29b8f9ef6220",
-    "originalPath": "/another/path/file3.txt"
-  },
-  {
-    "fileId": "13671f42-5b15-4e55-95e9-607185b84bbd",
-    "originalPath": "/another/path/file3.doc"
-  },
-  {
-    "fileId": "f3a6f37e-c0fb-4fdd-b5a0-fe6dd31e57cb",
-    "originalPath": "/a/path/file4_R.doc"
-  },
-  {
-    "fileId": "4509ffee-69d2-48da-b771-070a4d3a376d",
-    "originalPath": "/a/path/file4_R.pdf"
-  },
-  {
-    "fileId": "8cb1078a-f990-4875-81e1-c4120fdd01f2",
-    "originalPath": "/a/path/file5.pdf"
-  }
-]
+{
+  "results": [
+    {
+      "fileId": "079bc416-180c-45cc-a943-7c6d63c21d57",
+      "originalPath": "/a/path/file.txt"
+    },
+    {
+      "fileId": "9e31f5f3-7240-4802-9442-766307fc9501",
+      "originalPath": "/a/path/file_R1.txt"
+    },
+    {
+      "fileId": "2cfc0597-53d4-4a10-aa5a-e49be49aaa9b",
+      "originalPath": "/a/path/file2_R.txt"
+    },
+    {
+      "fileId": "4ad0037f-45ae-410a-9e0f-31bece7cef85",
+      "originalPath": "/another/path/file3_R.txt"
+    },
+    {
+      "fileId": "6de7cc09-0bf2-4216-ae78-29b8f9ef6220",
+      "originalPath": "/another/path/file3.txt"
+    },
+    {
+      "fileId": "13671f42-5b15-4e55-95e9-607185b84bbd",
+      "originalPath": "/another/path/file3.doc"
+    },
+    {
+      "fileId": "f3a6f37e-c0fb-4fdd-b5a0-fe6dd31e57cb",
+      "originalPath": "/a/path/file4_R.doc"
+    },
+    {
+      "fileId": "4509ffee-69d2-48da-b771-070a4d3a376d",
+      "originalPath": "/a/path/file4_R.pdf"
+    },
+    {
+      "fileId": "8cb1078a-f990-4875-81e1-c4120fdd01f2",
+      "originalPath": "/a/path/file5.pdf"
+    }
+  ]
+}
 
 ```
 It will group the files by directory
