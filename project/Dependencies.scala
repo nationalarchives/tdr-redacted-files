@@ -2,7 +2,7 @@ import sbt._
 
 
 object Dependencies {
-  private val circeVersion = "0.14.8"
+  private val circeVersion = "0.14.9"
 
   lazy val backendCheckUtils = "uk.gov.nationalarchives" %% "tdr-backend-checks-utils" % "0.1.80"
   lazy val circeCore = "io.circe" %% "circe-core" % circeVersion
