@@ -3,9 +3,13 @@ on:
   push:
     branches:
       - main
+
+permissions: {}
+
 jobs:
   pre-deploy:
-    uses: nationalarchives/tdr-github-actions/.github/workflows/lambda_build.yml@e4f98cd6bbf1281fd0e859fd1457274baf11ac0d # v0.0.18
+    permissions: { contents: write, id-token: write }
+    uses: nationalarchives/tdr-github-actions/.github/workflows/lambda_build.yml@683912c0ebb8d5d6edd15a222677395e95d12ce0 # v0.0.24
     with:
       lambda-name: redacted-files
       repo-name: tdr-redacted-files
@@ -16,6 +20,7 @@ jobs:
       MANAGEMENT_ACCOUNT: ${{ secrets.MANAGEMENT_ACCOUNT }}
       WORKFLOW_PAT: ${{ secrets.WORKFLOW_PAT }}
   deploy:
+    permissions: { contents: write, id-token: write }
     needs: pre-deploy
     runs-on: ubuntu-latest
     steps:

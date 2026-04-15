@@ -21,7 +21,7 @@ permissions:
   contents: write
 jobs:
   deploy:
-    uses: nationalarchives/tdr-github-actions/.github/workflows/lambda_deploy.yml@e4f98cd6bbf1281fd0e859fd1457274baf11ac0d # v0.0.18
+    uses: nationalarchives/tdr-github-actions/.github/workflows/lambda_deploy.yml@683912c0ebb8d5d6edd15a222677395e95d12ce0 # v0.0.24
     with:
       lambda-name: redacted-files
       deployment-package: redacted-files.jar
