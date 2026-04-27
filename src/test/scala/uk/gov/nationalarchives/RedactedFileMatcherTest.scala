@@ -11,7 +11,7 @@ import java.util.UUID
 class RedactedFileMatcherTest extends AnyFlatSpec with TableDrivenPropertyChecks {
 
   private def toFile(fileName: String): File =
-    File(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "standard", "1", "checksum", fileName, FileCheckResults(Nil, Nil, Nil))
+    File(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "standard", "1", "checksum", fileName, None, None, FileCheckResults(Nil, Nil, Nil))
 
   private def toFiles(fileNames: List[String]): List[File] = fileNames.map(toFile)
 
