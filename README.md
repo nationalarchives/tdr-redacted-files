@@ -13,55 +13,55 @@ Given the following input:
 {
   "results": [
     {
-      "fileId": "079bc416-180c-45cc-a943-7c6d63c21d57",
+      "fileId": "<file-id-1>",
       "originalPath": "/a/path/file.txt"
     },
     {
-      "fileId": "9e31f5f3-7240-4802-9442-766307fc9501",
+      "fileId": "<file-id-2>",
       "originalPath": "/a/path/file_R1.txt"
     },
     {
-      "fileId": "2cfc0597-53d4-4a10-aa5a-e49be49aaa9b",
+      "fileId": "<file-id-3>",
       "originalPath": "/a/path/file2_R.txt"
     },
     {
-      "fileId": "4ad0037f-45ae-410a-9e0f-31bece7cef85",
+      "fileId": "<file-id-4>",
       "originalPath": "/another/path/file3_R.txt"
     },
     {
-      "fileId": "6de7cc09-0bf2-4216-ae78-29b8f9ef6220",
+      "fileId": "<file-id-5>",
       "originalPath": "/another/path/file3.txt"
     },
     {
-      "fileId": "13671f42-5b15-4e55-95e9-607185b84bbd",
+      "fileId": "<file-id-6>",
       "originalPath": "/another/path/file3.doc"
     },
     {
-      "fileId": "f3a6f37e-c0fb-4fdd-b5a0-fe6dd31e57cb",
+      "fileId": "<file-id-7>",
       "originalPath": "/a/path/file4_R.doc"
     },
     {
-      "fileId": "4509ffee-69d2-48da-b771-070a4d3a376d",
+      "fileId": "<file-id-8>",
       "originalPath": "/a/path/file4_R.pdf"
     },
     {
-      "fileId": "8cb1078a-f990-4875-81e1-c4120fdd01f2",
+      "fileId": "<file-id-9>",
       "originalPath": "/a/path/file5.pdf"
     },
     {
-      "fileId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "fileId": "<file-id-10>",
       "originalPath": "/a/path/file6"
     },
     {
-      "fileId": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "fileId": "<file-id-11>",
       "originalPath": "/a/path/file6_R.png"
     },
     {
-      "fileId": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+      "fileId": "<file-id-12>",
       "originalPath": "/a/path/file7.docx"
     },
     {
-      "fileId": "d4e5f6a7-b8c9-0123-defa-234567890123",
+      "fileId": "<file-id-13>",
       "originalPath": "/a/path/file7_R"
     }
   ]
@@ -119,39 +119,39 @@ The lambda then returns this json:
 {
   "redactedFiles": [
     {
-      "originalFileId": "079bc416-180c-45cc-a943-7c6d63c21d57",
+      "originalFileId": "<file-id-1>",
       "originalFilePath": "/a/path/file.txt",
-      "redactedFileId": "9e31f5f3-7240-4802-9442-766307fc9501",
+      "redactedFileId": "<file-id-2>",
       "redactedFilePath": "/a/path/file_R1.txt"
     },
     {
-      "originalFileId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "originalFileId": "<file-id-10>",
       "originalFilePath": "/a/path/file6",
-      "redactedFileId": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "redactedFileId": "<file-id-11>",
       "redactedFilePath": "/a/path/file6_R.png"
     },
     {
-      "originalFileId": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+      "originalFileId": "<file-id-12>",
       "originalFilePath": "/a/path/file7.docx",
-      "redactedFileId": "d4e5f6a7-b8c9-0123-defa-234567890123",
+      "redactedFileId": "<file-id-13>",
       "redactedFilePath": "/a/path/file7_R"
     }
   ],
   "errors": [
     {
-      "fileId": "2cfc0597-53d4-4a10-aa5a-e49be49aaa9b",
+      "fileId": "<file-id-3>",
       "cause": "NoOriginalFile"
     },
     {
-      "fileId": "f3a6f37e-c0fb-4fdd-b5a0-fe6dd31e57cb",
+      "fileId": "<file-id-7>",
       "cause": "DuplicateFileName"
     },
     {
-      "fileId": "4509ffee-69d2-48da-b771-070a4d3a376d",
+      "fileId": "<file-id-8>",
       "cause": "DuplicateFileName"
     },
     {
-      "fileId": "4ad0037f-45ae-410a-9e0f-31bece7cef85",
+      "fileId": "<file-id-4>",
       "cause": "AmbiguousOriginalFile"
     }
   ]
