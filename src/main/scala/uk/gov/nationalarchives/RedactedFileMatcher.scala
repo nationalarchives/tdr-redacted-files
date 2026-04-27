@@ -28,15 +28,15 @@ object RedactedFileMatcher {
 
       val nonDuplicateRedactedFiles = redactedFiles.diff(redactedFilesWithDuplicateNames)
 
-      nonDuplicateRedactedFiles.map(redactedFile => {
+      nonDuplicateRedactedFiles.map { redactedFile =>
         val originalFileName = originalNameFor(redactedFile)
         val originalFiles = directoryFiles.files.filter(fileInDirectory => isOriginalFile(fileInDirectory, originalFileName))
-        originalFiles.length match {
-          case 1 => RedactedFilePairs(originalFiles.head.fileId, originalFiles.head.filePath, redactedFile.fileId, redactedFile.filePath)
-          case 0 => RedactedErrors(redactedFile.fileId, NoOriginalFile)
+        originalFiles match {
+          case head  :: Nil => RedactedFilePairs(head.fileId, head.filePath, redactedFile.fileId, redactedFile.filePath)
+          case Nil => RedactedErrors(redactedFile.fileId, NoOriginalFile)
           case _ => RedactedErrors(redactedFile.fileId, AmbiguousOriginalFile)
         }
-      }) ++ redactedFilesWithDuplicateNames.map(dup => RedactedErrors(dup.fileId, DuplicateFileName))
+      } ++ redactedFilesWithDuplicateNames.map(dup => RedactedErrors(dup.fileId, DuplicateFileName))
     }.toList
   }
 
