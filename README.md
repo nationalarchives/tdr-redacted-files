@@ -47,6 +47,22 @@ Given the following input:
     {
       "fileId": "8cb1078a-f990-4875-81e1-c4120fdd01f2",
       "originalPath": "/a/path/file5.pdf"
+    },
+    {
+      "fileId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "originalPath": "/a/path/file6"
+    },
+    {
+      "fileId": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "originalPath": "/a/path/file6_R.png"
+    },
+    {
+      "fileId": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+      "originalPath": "/a/path/file7.docx"
+    },
+    {
+      "fileId": "d4e5f6a7-b8c9-0123-defa-234567890123",
+      "originalPath": "/a/path/file7_R"
     }
   ]
 }
@@ -55,18 +71,20 @@ Given the following input:
 It will group the files by directory
 ```scala
 Map(
-  "/a/path" -> List("/a/path/file.txt", "/a/path/file_R1.txt", "/a/path/file2_R.txt", "/a/path/file4_R.doc", "a/path/file4_R.pdf", "/a/path/file5.pdf"), 
+  "/a/path" -> List("/a/path/file.txt", "/a/path/file_R1.txt", "/a/path/file2_R.txt", "/a/path/file4_R.doc", "/a/path/file4_R.pdf", "/a/path/file5.pdf", "/a/path/file6", "/a/path/file6_R.png", "/a/path/file7.docx", "/a/path/file7_R"), 
   "/another/path" -> List("/another/path/file3_R.txt", "/another/path/file3.txt", "/another/path/file3.doc")  
 )
 ```
 ----
-For the `/a/path` directory, it will filter out any file which matches the pattern `_R\d*?$` without its file extension. This returns:
+For the `/a/path` directory, it will filter out any file whose name (without extension, if present) matches the pattern `_R\d*?$`. This returns:
 
 ```scala
 "/a/path/file4_R.pdf"
 "/a/path/file4_R.doc"
 "/a/path/file2_R.txt"
 "/a/path/file_R1.txt"
+"/a/path/file6_R.png"
+"/a/path/file7_R"
 ```
 
 It will then filter any redacted file names with the same name ignoring the file extension. This gives:
@@ -78,9 +96,13 @@ These are returned with the error `DuplicateFileName`
 
 The remaining redacted files are checked against the non redacted files for original file matches.
 
-`file2_R.txt` needs to have a matching file called `file2.xxx` but this isn't in the original array so this returns an error of `NoOriginalFile`
+`file2_R.txt` needs to have a matching file called `file2.xxx` or `file2` but this isn't in the original array so this returns an error of `NoOriginalFile`
 
-`file_R1.txt` needs to have a matching file called `file.xxx` This is in the original array so this is returned as a matched pair.
+`file_R1.txt` needs to have a matching file called `file.xxx` or `file` This is in the original array so this is returned as a matched pair.
+
+`file6_R.png` needs to have a matching file called `file6.xxx` or `file6`. The extensionless file `file6` is in the original array so this is returned as a matched pair.
+
+`file7_R` has no extension. Its name without extension is still `file7_R` which matches the redacted pattern. It needs a matching file called `file7.xxx` or `file7`. `file7.docx` is in the original array so this is returned as a matched pair.
 
 -----
 For the `/another/path` folder, this redacted file is found:
@@ -88,7 +110,7 @@ For the `/another/path` folder, this redacted file is found:
 "/another/path/file3_R.txt"
 ```
 There is only one so there is no duplicate, so it then checks the original file list for a match. 
-We are looking for a file called `file3.xxx` There are two files which match this, `file3.txt` and `file3.doc` 
+We are looking for a file called `file3.xxx` or `file3` There are two files which match this, `file3.txt` and `file3.doc` 
 We can't tell which of these was the original file, so we return an `AmbiguousOriginalFile` error.
 
 The lambda then returns this json:
@@ -101,6 +123,18 @@ The lambda then returns this json:
       "originalFilePath": "/a/path/file.txt",
       "redactedFileId": "9e31f5f3-7240-4802-9442-766307fc9501",
       "redactedFilePath": "/a/path/file_R1.txt"
+    },
+    {
+      "originalFileId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "originalFilePath": "/a/path/file6",
+      "redactedFileId": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "redactedFilePath": "/a/path/file6_R.png"
+    },
+    {
+      "originalFileId": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+      "originalFilePath": "/a/path/file7.docx",
+      "redactedFileId": "d4e5f6a7-b8c9-0123-defa-234567890123",
+      "redactedFilePath": "/a/path/file7_R"
     }
   ],
   "errors": [
