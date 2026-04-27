@@ -39,7 +39,7 @@ class RedactedFileMatcherTest extends AnyFlatSpec with TableDrivenPropertyChecks
     (List("DTP_R1", "DTP_R2", "DTP.docx"), Map("DTP_R1" -> "DTP.docx", "DTP_R2" -> "DTP.docx")),
   )
 
-  val noRedactionTestData: TableFor1[List[String]] = Table(
+  val notRedactedTestData: TableFor1[List[String]] = Table(
     "files",
     List("DTP.docx_R", "DTP.docx"),
     List("DTP.docx_Ra", "DTP.docx"),
@@ -78,7 +78,7 @@ class RedactedFileMatcherTest extends AnyFlatSpec with TableDrivenPropertyChecks
     }
   }
 
-  forAll(noRedactionTestData) { fileNames =>
+  forAll(notRedactedTestData) { fileNames =>
     "getRedactedFiles" should s"return no results for ${fileNames.mkString(", ")}" in {
       val results = getRedactedFiles(toFiles(fileNames))
       results shouldBe empty
