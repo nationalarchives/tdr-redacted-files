@@ -78,7 +78,7 @@ class LambdaTest extends AnyFlatSpec with BeforeAndAfterAll {
 
   private def setupS3(files: List[String]): String = {
     val mappedFiles = files
-      .map(fileName => File(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "standard", "1", "checksum", fileName, FileCheckResults(Nil, Nil, Nil)))
+      .map(fileName => File(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "standard", "1", "checksum", fileName, Some("source-bucket"), Some("object/key"), FileCheckResults(Nil, Nil, Nil)))
     val inputJson = Input(mappedFiles, RedactedResults(Nil, Nil), StatusResult(Nil))
       .asJson.printWith(Printer.noSpaces)
     val s3Input = S3Input(s"testKey-${UUID.randomUUID()}", "testBucket")
