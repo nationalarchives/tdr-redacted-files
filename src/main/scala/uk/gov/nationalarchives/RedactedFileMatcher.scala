@@ -47,7 +47,7 @@ object RedactedFileMatcher {
 
   private def toFileName(file: File): FileName = {
     val name = Paths.get(file.originalPath).getFileName.toString
-    FileName(file.fileId, file.originalPath, name, removeExtension(name), hasExtension(name))
+    FileName(file.fileId, file.originalPath, name, removeExtension(name))
   }
 
   private def directory(path: String): String = Option(Paths.get(path).getParent).map(_.toString).getOrElse("")
@@ -61,10 +61,6 @@ object RedactedFileMatcher {
     }
   }
 
-  private def hasExtension(fileName: String): Boolean = {
-    val extensionSeparator = fileName.lastIndexOf('.')
-    extensionSeparator > 0 && extensionSeparator < fileName.length - 1
-  }
 
   private def isRedactedFile(file: FileName): Boolean = {
     RedactedFilePattern.findFirstIn(file.fileNameNoExtension).isDefined
@@ -82,5 +78,5 @@ object RedactedFileMatcher {
   private case class RedactedFilesByName(fileNameNoExtension: String, files: List[FileName]) {
     def hasDuplicates: Boolean = files.size > 1
   }
-  private case class FileName(fileId: UUID, filePath: String, fileName: String, fileNameNoExtension: String, hasExtension: Boolean)
+  private case class FileName(fileId: UUID, filePath: String, fileName: String, fileNameNoExtension: String)
 }
