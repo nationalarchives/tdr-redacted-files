@@ -2,6 +2,7 @@ package uk.gov.nationalarchives
 
 import uk.gov.nationalarchives.BackendCheckUtils._
 
+import java.nio.file.Paths
 import java.util.UUID
 
 object RedactedFileMatcher {
@@ -45,11 +46,11 @@ object RedactedFileMatcher {
   }
 
   private def toFileName(file: File): FileName = {
-    val name = file.originalPath.split("/").last
+    val name = Paths.get(file.originalPath).getFileName.toString
     FileName(file.fileId, file.originalPath, name, removeExtension(name), hasExtension(name))
   }
 
-  private def directory(path: String): String = path.split("/").dropRight(1).mkString("/")
+  private def directory(path: String): String = Option(Paths.get(path).getParent).map(_.toString).getOrElse("")
 
   private def removeExtension(fileName: String): String = {
     val extensionSeparator = fileName.lastIndexOf('.')
