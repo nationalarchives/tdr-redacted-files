@@ -6,9 +6,9 @@ import java.nio.file.Paths
 import java.util.UUID
 
 object RedactedFileMatcher {
-  val NoOriginalFile = "NoOriginalFile"
-  val AmbiguousOriginalFile = "AmbiguousOriginalFile"
-  val DuplicateFileName = "DuplicateFileName"
+  val noOriginalFileError = "NoOriginalFile"
+  val ambiguousOriginalFileError = "AmbiguousOriginalFile"
+  val duplicateFileNameError = "DuplicateFileName"
 
   private val RedactedFilePattern = "_R\\d*?$".r
 
@@ -27,7 +27,7 @@ object RedactedFileMatcher {
         .flatMap(redactedFilesByName => redactedFilesByName.files)
         .toList
 
-      val duplicateErrors: Seq[RedactedErrors] = redactedFilesWithDuplicateNames.map(dup => RedactedErrors(dup.fileId, DuplicateFileName))
+      val duplicateErrors: Seq[RedactedErrors] = redactedFilesWithDuplicateNames.map(dup => RedactedErrors(dup.fileId, duplicateFileNameError))
 
       val nonDuplicateRedactedFiles: Seq[FileName] = redactedFiles.diff(redactedFilesWithDuplicateNames)
 
@@ -36,8 +36,8 @@ object RedactedFileMatcher {
         val originalFiles = directoryFiles.files.filter(fileInDirectory => isOriginalFile(fileInDirectory, originalFileName))
         originalFiles match {
           case head :: Nil => RedactedFilePairs(head.fileId, head.filePath, redactedFile.fileId, redactedFile.filePath)
-          case Nil => RedactedErrors(redactedFile.fileId, NoOriginalFile)
-          case _ => RedactedErrors(redactedFile.fileId, AmbiguousOriginalFile)
+          case Nil => RedactedErrors(redactedFile.fileId, noOriginalFileError)
+          case _ => RedactedErrors(redactedFile.fileId, ambiguousOriginalFileError)
         }
       }
 
@@ -50,8 +50,6 @@ object RedactedFileMatcher {
     FileName(file.fileId, file.originalPath, name, removeExtension(name))
   }
 
-  private def directory(path: String): String = Option(Paths.get(path).getParent).map(_.toString).getOrElse("")
-
   private def removeExtension(fileName: String): String = {
     val extensionSeparator = fileName.lastIndexOf('.')
     if (extensionSeparator > 0 && extensionSeparator < fileName.length - 1) {
@@ -61,6 +59,7 @@ object RedactedFileMatcher {
     }
   }
 
+  private def directory(path: String): String = Option(Paths.get(path).getParent).map(_.toString).getOrElse("")
 
   private def isRedactedFile(file: FileName): Boolean = {
     RedactedFilePattern.findFirstIn(file.fileNameNoExtension).isDefined
