@@ -53,17 +53,17 @@ class RedactedFileMatcherTest extends AnyFlatSpec with TableDrivenPropertyChecks
 
   val redactionErrors: TableFor2[List[String], List[String]] = Table(
     ("files", "expectedErrors"),
-    (List("DTP_R1.docx"), List(NoOriginalFile)),
-    (List("DTP_R.docx"), List(NoOriginalFile)),
-    (List("/dir1/DTP_R.docx", "/dir1/dir2/DTP.docx"), List(NoOriginalFile)),
-    (List("/dir1/dir2/DTP_R.docx", "/dir1/DTP.docx"), List(NoOriginalFile)),
-    (List("/dir1/dir2/DTP_R.docx", "/dir1/dir3/DTP.docx"), List(NoOriginalFile)),
-    (List("DTP__R.docx", "DTP.docx"), List(NoOriginalFile)),
-    (List("DTP.docx", "DTP_R.docx", "DTP_R.pdf"), List(DuplicateFileName, DuplicateFileName)),
-    (List("DTP.docx", "DTP.pdf", "DTP_R1.docx"), List(AmbiguousOriginalFile)),
-    (List("DTP", "DTP.docx", "DTP_R.png"), List(AmbiguousOriginalFile)),
-    (List("DTP_R"), List(NoOriginalFile)),
-    (List("DTP_R", "DTP_R.docx", "DTP.pdf"), List(DuplicateFileName, DuplicateFileName)),
+    (List("DTP_R1.docx"), List(noOriginalFileError)),
+    (List("DTP_R.docx"), List(noOriginalFileError)),
+    (List("/dir1/DTP_R.docx", "/dir1/dir2/DTP.docx"), List(noOriginalFileError)),
+    (List("/dir1/dir2/DTP_R.docx", "/dir1/DTP.docx"), List(noOriginalFileError)),
+    (List("/dir1/dir2/DTP_R.docx", "/dir1/dir3/DTP.docx"), List(noOriginalFileError)),
+    (List("DTP__R.docx", "DTP.docx"), List(noOriginalFileError)),
+    (List("DTP.docx", "DTP_R.docx", "DTP_R.pdf"), List(duplicateFileNameError, duplicateFileNameError)),
+    (List("DTP.docx", "DTP.pdf", "DTP_R1.docx"), List(ambiguousOriginalFileError)),
+    (List("DTP", "DTP.docx", "DTP_R.png"), List(ambiguousOriginalFileError)),
+    (List("DTP_R"), List(noOriginalFileError)),
+    (List("DTP_R", "DTP_R.docx", "DTP.pdf"), List(duplicateFileNameError, duplicateFileNameError)),
   )
 
   forAll(validTestData) { (fileNames, expectedPairs) =>

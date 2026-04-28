@@ -38,7 +38,7 @@ class LambdaTest extends AnyFlatSpec with BeforeAndAfterAll {
     result.redactedFiles.head.redactedFilePath should equal("DTP_R.docx")
     result.redactedFiles.head.originalFilePath should equal("DTP.docx")
     result.errors.size should equal(1)
-    result.errors.head.cause should equal(NoOriginalFile)
+    result.errors.head.cause should equal(noOriginalFileError)
   }
 
   "run" should "handle extensionless original files through S3 round-trip" in {
