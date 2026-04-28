@@ -13,40 +13,56 @@ Given the following input:
 {
   "results": [
     {
-      "fileId": "079bc416-180c-45cc-a943-7c6d63c21d57",
+      "fileId": "<file-id-1>",
       "originalPath": "/a/path/file.txt"
     },
     {
-      "fileId": "9e31f5f3-7240-4802-9442-766307fc9501",
+      "fileId": "<file-id-2>",
       "originalPath": "/a/path/file_R1.txt"
     },
     {
-      "fileId": "2cfc0597-53d4-4a10-aa5a-e49be49aaa9b",
+      "fileId": "<file-id-3>",
       "originalPath": "/a/path/file2_R.txt"
     },
     {
-      "fileId": "4ad0037f-45ae-410a-9e0f-31bece7cef85",
+      "fileId": "<file-id-4>",
       "originalPath": "/another/path/file3_R.txt"
     },
     {
-      "fileId": "6de7cc09-0bf2-4216-ae78-29b8f9ef6220",
+      "fileId": "<file-id-5>",
       "originalPath": "/another/path/file3.txt"
     },
     {
-      "fileId": "13671f42-5b15-4e55-95e9-607185b84bbd",
+      "fileId": "<file-id-6>",
       "originalPath": "/another/path/file3.doc"
     },
     {
-      "fileId": "f3a6f37e-c0fb-4fdd-b5a0-fe6dd31e57cb",
+      "fileId": "<file-id-7>",
       "originalPath": "/a/path/file4_R.doc"
     },
     {
-      "fileId": "4509ffee-69d2-48da-b771-070a4d3a376d",
+      "fileId": "<file-id-8>",
       "originalPath": "/a/path/file4_R.pdf"
     },
     {
-      "fileId": "8cb1078a-f990-4875-81e1-c4120fdd01f2",
+      "fileId": "<file-id-9>",
       "originalPath": "/a/path/file5.pdf"
+    },
+    {
+      "fileId": "<file-id-10>",
+      "originalPath": "/a/path/file6"
+    },
+    {
+      "fileId": "<file-id-11>",
+      "originalPath": "/a/path/file6_R.png"
+    },
+    {
+      "fileId": "<file-id-12>",
+      "originalPath": "/a/path/file7.docx"
+    },
+    {
+      "fileId": "<file-id-13>",
+      "originalPath": "/a/path/file7_R"
     }
   ]
 }
@@ -55,18 +71,20 @@ Given the following input:
 It will group the files by directory
 ```scala
 Map(
-  "/a/path" -> List("/a/path/file.txt", "/a/path/file_R1.txt", "/a/path/file2_R.txt", "/a/path/file4_R.doc", "a/path/file4_R.pdf", "/a/path/file5.pdf"), 
+  "/a/path" -> List("/a/path/file.txt", "/a/path/file_R1.txt", "/a/path/file2_R.txt", "/a/path/file4_R.doc", "/a/path/file4_R.pdf", "/a/path/file5.pdf", "/a/path/file6", "/a/path/file6_R.png", "/a/path/file7.docx", "/a/path/file7_R"), 
   "/another/path" -> List("/another/path/file3_R.txt", "/another/path/file3.txt", "/another/path/file3.doc")  
 )
 ```
 ----
-For the `/a/path` directory, it will filter out any file which matches the pattern `_R\d*?$` without its file extension. This returns:
+For the `/a/path` directory, it will filter out any file whose name (without extension, if present) matches the pattern `_R\d*?$`. This returns:
 
 ```scala
 "/a/path/file4_R.pdf"
 "/a/path/file4_R.doc"
 "/a/path/file2_R.txt"
 "/a/path/file_R1.txt"
+"/a/path/file6_R.png"
+"/a/path/file7_R"
 ```
 
 It will then filter any redacted file names with the same name ignoring the file extension. This gives:
@@ -78,9 +96,13 @@ These are returned with the error `DuplicateFileName`
 
 The remaining redacted files are checked against the non redacted files for original file matches.
 
-`file2_R.txt` needs to have a matching file called `file2.xxx` but this isn't in the original array so this returns an error of `NoOriginalFile`
+`file2_R.txt` needs to have a matching file called `file2.xxx` or `file2` but this isn't in the original array so this returns an error of `NoOriginalFile`
 
-`file_R1.txt` needs to have a matching file called `file.xxx` This is in the original array so this is returned as a matched pair.
+`file_R1.txt` needs to have a matching file called `file.xxx` or `file` This is in the original array so this is returned as a matched pair.
+
+`file6_R.png` needs to have a matching file called `file6.xxx` or `file6`. The extensionless file `file6` is in the original array so this is returned as a matched pair.
+
+`file7_R` has no extension. Its name without extension is still `file7_R` which matches the redacted pattern. It needs a matching file called `file7.xxx` or `file7`. `file7.docx` is in the original array so this is returned as a matched pair.
 
 -----
 For the `/another/path` folder, this redacted file is found:
@@ -88,7 +110,7 @@ For the `/another/path` folder, this redacted file is found:
 "/another/path/file3_R.txt"
 ```
 There is only one so there is no duplicate, so it then checks the original file list for a match. 
-We are looking for a file called `file3.xxx` There are two files which match this, `file3.txt` and `file3.doc` 
+We are looking for a file called `file3.xxx` or `file3` There are two files which match this, `file3.txt` and `file3.doc` 
 We can't tell which of these was the original file, so we return an `AmbiguousOriginalFile` error.
 
 The lambda then returns this json:
@@ -97,27 +119,39 @@ The lambda then returns this json:
 {
   "redactedFiles": [
     {
-      "originalFileId": "079bc416-180c-45cc-a943-7c6d63c21d57",
+      "originalFileId": "<file-id-1>",
       "originalFilePath": "/a/path/file.txt",
-      "redactedFileId": "9e31f5f3-7240-4802-9442-766307fc9501",
+      "redactedFileId": "<file-id-2>",
       "redactedFilePath": "/a/path/file_R1.txt"
+    },
+    {
+      "originalFileId": "<file-id-10>",
+      "originalFilePath": "/a/path/file6",
+      "redactedFileId": "<file-id-11>",
+      "redactedFilePath": "/a/path/file6_R.png"
+    },
+    {
+      "originalFileId": "<file-id-12>",
+      "originalFilePath": "/a/path/file7.docx",
+      "redactedFileId": "<file-id-13>",
+      "redactedFilePath": "/a/path/file7_R"
     }
   ],
   "errors": [
     {
-      "fileId": "2cfc0597-53d4-4a10-aa5a-e49be49aaa9b",
+      "fileId": "<file-id-3>",
       "cause": "NoOriginalFile"
     },
     {
-      "fileId": "f3a6f37e-c0fb-4fdd-b5a0-fe6dd31e57cb",
+      "fileId": "<file-id-7>",
       "cause": "DuplicateFileName"
     },
     {
-      "fileId": "4509ffee-69d2-48da-b771-070a4d3a376d",
+      "fileId": "<file-id-8>",
       "cause": "DuplicateFileName"
     },
     {
-      "fileId": "4ad0037f-45ae-410a-9e0f-31bece7cef85",
+      "fileId": "<file-id-4>",
       "cause": "AmbiguousOriginalFile"
     }
   ]
