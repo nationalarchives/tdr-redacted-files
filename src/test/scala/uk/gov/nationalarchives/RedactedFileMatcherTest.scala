@@ -57,6 +57,7 @@ class RedactedFileMatcherTest extends AnyFlatSpec with TableDrivenPropertyChecks
     List("DTP_redacted.updated.docx", "DTP.updated.docx"),
     List("DTP_REDACTED.docx", "DTP.docx"),
     List("DTPR", "DTPR.docx"),
+    List("_R", "DTP.docx"),
   )
 
   val redactionErrors: TableFor2[List[String], List[String]] = Table(

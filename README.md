@@ -87,7 +87,7 @@ Map(
 )
 ```
 ----
-For the `/a/path` directory, it will filter out any file whose name (without extension, if present) matches a supported redaction suffix pattern, `(?:_R|_Redacted|_redacted)\d*?$`. This returns:
+For the `/a/path` directory, it will filter out any file whose name (without extension, if present) matches a supported redaction suffix pattern, `(?:_R|_Redacted|_redacted)\d*$`. This returns:
 
 ```scala
 "/a/path/file4_R.pdf"

@@ -10,7 +10,7 @@ object RedactedFileMatcher {
   val ambiguousOriginalFileError = "AmbiguousOriginalFile"
   val duplicateFileNameError = "DuplicateFileName"
 
-  private val RedactedFilePattern = "^(.*)(?:_R|_Redacted|_redacted)\\d*$".r
+  private val RedactedFilePattern = "^(.+?)(?:_R|_Redacted|_redacted)\\d*$".r
 
   def getRedactedFiles(files: List[File]): List[RedactedResult] = {
     val filesInDirectories = files
