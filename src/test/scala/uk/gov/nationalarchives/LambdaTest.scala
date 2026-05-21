@@ -61,6 +61,15 @@ class LambdaTest extends AnyFlatSpec with BeforeAndAfterAll {
     result.errors shouldBe empty
   }
 
+  "run" should "match mixed redacted naming conventions through S3 round-trip" in {
+    val files = List("DTP.docx", "DTP_R.docx", "DTP_Redacted1.pdf", "DTP_redacted2")
+    val result = runLambda(files)
+    val pairs = result.redactedFiles.map(pair => pair.redactedFilePath -> pair.originalFilePath).toMap
+
+    pairs should equal(Map("DTP_R.docx" -> "DTP.docx", "DTP_Redacted1.pdf" -> "DTP.docx", "DTP_redacted2" -> "DTP.docx"))
+    result.errors shouldBe empty
+  }
+
   private def runLambda(files: List[String]): RedactedResults = {
     wiremockS3Server.resetRequests()
     val s3Input = setupS3(files)

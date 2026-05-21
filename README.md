@@ -12,6 +12,18 @@ This means there must be at least one character before the suffix, so names like
 
 The example input below is only part of the full JSON object, but these are the only fields checked.
 
+## Help & FAQ
+
+Redacted files are identified when the filename without its extension has a non-empty base name and ends with one of the supported redaction suffixes:
+`_R`, `_Redacted`, or `_redacted`. Each suffix can also be followed by digits, for example `file_R1`, `file_Redacted1`, or
+`file_redacted2`.
+
+For example, `file_R.docx`, `file_Redacted.pdf`, and `file_redacted1` are treated as redacted versions of `file`.
+Filenames made up only of a suffix, such as `_R`, are not treated as redacted files.
+If a user provides different supported redaction names for the same original, such as `file_R.docx` and
+`file_Redacted1.pdf`, both files can be matched to `file`. If two redacted files have the same filename ignoring the
+extension, such as `file_Redacted.docx` and `file_Redacted.pdf`, they are returned with the `DuplicateFileName` error.
+
 Given the following input:
 
 ```json
@@ -108,7 +120,7 @@ Map(
 ```
 
 ----
-For the `/a/path` directory, it will filter out any file whose name (without extension, if present) matches the pattern `(?:_R|_Redacted|_redacted)\d*$`. This returns:
+For the `/a/path` directory, it will filter out any file whose name (without extension, if present) has a non-empty base name and matches a supported redaction suffix pattern, `^(.+?)(?:_R|_Redacted|_redacted)\d*$`. This returns:
 
 ```scala
 "/a/path/file4_R.pdf"
