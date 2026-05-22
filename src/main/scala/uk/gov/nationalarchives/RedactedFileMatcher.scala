@@ -10,7 +10,7 @@ object RedactedFileMatcher {
   val ambiguousOriginalFileError = "AmbiguousOriginalFile"
   val duplicateFileNameError = "DuplicateFileName"
 
-  private val RedactedFilePattern = "_R\\d*?$".r
+  private val RedactedFilePattern = "^(.+?)(?:_R|_Redacted|_redacted)\\d*$".r
 
   def getRedactedFiles(files: List[File]): List[RedactedResult] = {
     val filesInDirectories = files
@@ -62,11 +62,17 @@ object RedactedFileMatcher {
   private def directory(path: String): String = Option(Paths.get(path).getParent).map(_.toString).getOrElse("")
 
   private def isRedactedFile(file: FileName): Boolean = {
-    RedactedFilePattern.findFirstIn(file.fileNameNoExtension).isDefined
+    file.fileNameNoExtension match {
+      case RedactedFilePattern(_) => true
+      case _ => false
+    }
   }
 
   private def originalNameFor(redactedFile: FileName): String = {
-    redactedFile.fileNameNoExtension.substring(0, redactedFile.fileNameNoExtension.lastIndexOf("_R"))
+    redactedFile.fileNameNoExtension match {
+      case RedactedFilePattern(originalName) => originalName
+      case _ => throw new IllegalArgumentException(s"${redactedFile.fileName} does not match redacted file pattern")
+    }
   }
 
   private def isOriginalFile(file: FileName, originalFileName: String): Boolean = {

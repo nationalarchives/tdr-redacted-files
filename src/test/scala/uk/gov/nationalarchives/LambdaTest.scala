@@ -61,6 +61,15 @@ class LambdaTest extends AnyFlatSpec with BeforeAndAfterAll {
     result.errors shouldBe empty
   }
 
+  "run" should "match mixed redacted naming conventions through S3 round-trip" in {
+    val files = List("DTP.docx", "DTP_R.docx", "DTP_Redacted1.pdf", "DTP_redacted2")
+    val result = runLambda(files)
+    val pairs = result.redactedFiles.map(pair => pair.redactedFilePath -> pair.originalFilePath).toMap
+
+    pairs should equal(Map("DTP_R.docx" -> "DTP.docx", "DTP_Redacted1.pdf" -> "DTP.docx", "DTP_redacted2" -> "DTP.docx"))
+    result.errors shouldBe empty
+  }
+
   private def runLambda(files: List[String]): RedactedResults = {
     wiremockS3Server.resetRequests()
     val s3Input = setupS3(files)
@@ -78,7 +87,7 @@ class LambdaTest extends AnyFlatSpec with BeforeAndAfterAll {
 
   private def setupS3(files: List[String]): String = {
     val mappedFiles = files
-      .map(fileName => File(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "standard", "1", "checksum", fileName, Some("source-bucket"), Some("object/key"), FileCheckResults(Nil, Nil, Nil)))
+      .map(fileName => File(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "standard", "1", "checksum", fileName, Some("source-bucket"), Some("object/key"), None, None, None, None, FileCheckResults(Nil, Nil, Nil)))
     val inputJson = Input(mappedFiles, RedactedResults(Nil, Nil), StatusResult(Nil))
       .asJson.printWith(Printer.noSpaces)
     val s3Input = S3Input(s"testKey-${UUID.randomUUID()}", "testBucket")
