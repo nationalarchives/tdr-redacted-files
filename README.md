@@ -7,6 +7,18 @@ original file or returns an error.
 If the file does not match the redacted file pattern, it returns nothing.
 The example input here is only part of the full json object but these are the only fields checked. 
 
+## Help & FAQ
+
+Redacted files are identified when the filename without its extension has a non-empty base name and ends with one of the supported redaction suffixes:
+`_R`, `_Redacted`, or `_redacted`. Each suffix can also be followed by digits, for example `file_R1`, `file_Redacted1`, or
+`file_redacted2`.
+
+For example, `file_R.docx`, `file_Redacted.pdf`, and `file_redacted1` are treated as redacted versions of `file`.
+Filenames made up only of a suffix, such as `_R`, are not treated as redacted files.
+If a user provides different supported redaction names for the same original, such as `file_R.docx` and
+`file_Redacted1.pdf`, both files can be matched to `file`. If two redacted files have the same filename ignoring the
+extension, such as `file_Redacted.docx` and `file_Redacted.pdf`, they are returned with the `DuplicateFileName` error.
+
 Given the following input:
 
 ```json
@@ -76,7 +88,7 @@ Map(
 )
 ```
 ----
-For the `/a/path` directory, it will filter out any file whose name (without extension, if present) matches the pattern `_R\d*?$`. This returns:
+For the `/a/path` directory, it will filter out any file whose name (without extension, if present) has a non-empty base name and matches a supported redaction suffix pattern, `^(.+?)(?:_R|_Redacted|_redacted)\d*$`. This returns:
 
 ```scala
 "/a/path/file4_R.pdf"
@@ -158,3 +170,32 @@ The lambda then returns this json:
 }
 ```
 There is a [LambdaRunner](src/main/scala/uk/gov/nationalarchives/LambdaRunner.scala) class which will take a json string and run the Lambda. This can be used to test various inputs. 
+
+````
+This is the description of what the code block changes:
+<changeDescription>
+Clarify README wording to require a non-empty base filename before the redaction suffix, matching current matcher behavior.
+</changeDescription>
+
+This is the code block that represents the suggested code change:
+```markdown
+## Help & FAQ
+
+Redacted files are identified when the filename without its extension has a non-empty base name and ends with one of the supported redaction suffixes:
+`_R`, `_Redacted`, or `_redacted`. Each suffix can also be followed by digits, for example `file_R1`, `file_Redacted1`, or
+`file_redacted2`.
+
+For example, `file_R.docx`, `file_Redacted.pdf`, and `file_redacted1` are treated as redacted versions of `file`.
+Filenames made up only of a suffix, such as `_R`, are not treated as redacted files.
+If a user provides different supported redaction names for the same original, such as `file_R.docx` and
+`file_Redacted1.pdf`, both files can be matched to `file`. If two redacted files have the same filename ignoring the
+extension, such as `file_Redacted.docx` and `file_Redacted.pdf`, they are returned with the `DuplicateFileName` error.
+
+...existing code...
+
+For the `/a/path` directory, it will filter out any file whose name (without extension, if present) has a non-empty base name and matches a supported redaction suffix pattern, `^(.+?)(?:_R|_Redacted|_redacted)\d*$`. This returns:
+```
+<userPrompt>
+Provide the fully rewritten file, incorporating the suggested code change. You must produce the complete file.
+</userPrompt>
+
