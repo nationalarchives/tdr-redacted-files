@@ -1,11 +1,16 @@
 # TDR Redacted Files
 
-This lambda is passed an object with an S3 key and bucket.
-It gets that object from S3 which returns a json object.
-The results key in that json is a list of file paths and if there is a file matching the redacted file pattern, either finds the
-original file or returns an error.
-If the file does not match the redacted file pattern, it returns nothing.
-The example input here is only part of the full json object but these are the only fields checked. 
+This lambda receives an object containing an S3 bucket and key.
+It reads that object from S3, parses the JSON, and inspects the `results` array of file paths.
+For each redacted file it finds, it either:
+- matches it to its original file, or
+- returns an error when a valid original cannot be determined.
+
+Files are treated as redacted when the filename (without extension) matches
+`^(.+?)(?:_R|_Redacted|_redacted)\d*$`.
+This means there must be at least one character before the suffix, so names like `_R` are not treated as redacted.
+
+The example input below is only part of the full JSON object, but these are the only fields checked.
 
 ## Help & FAQ
 
@@ -75,18 +80,45 @@ Given the following input:
     {
       "fileId": "<file-id-13>",
       "originalPath": "/a/path/file7_R"
+    },
+    {
+      "fileId": "<file-id-14>",
+      "originalPath": "/a/path/report.pdf"
+    },
+    {
+      "fileId": "<file-id-15>",
+      "originalPath": "/a/path/report_Redacted.pdf"
+    },
+    {
+      "fileId": "<file-id-16>",
+      "originalPath": "/a/path/memo.docx"
+    },
+    {
+      "fileId": "<file-id-17>",
+      "originalPath": "/a/path/memo_redacted1.docx"
+    },
+    {
+      "fileId": "<file-id-18>",
+      "originalPath": "/another/path/letter_Redacted2.txt"
+    },
+    {
+      "fileId": "<file-id-19>",
+      "originalPath": "/another/path/letter.txt"
     }
   ]
 }
 
 ```
+
 It will group the files by directory
+
 ```scala
 Map(
-  "/a/path" -> List("/a/path/file.txt", "/a/path/file_R1.txt", "/a/path/file2_R.txt", "/a/path/file4_R.doc", "/a/path/file4_R.pdf", "/a/path/file5.pdf", "/a/path/file6", "/a/path/file6_R.png", "/a/path/file7.docx", "/a/path/file7_R"), 
-  "/another/path" -> List("/another/path/file3_R.txt", "/another/path/file3.txt", "/another/path/file3.doc")  
+  "/a/path" -> List("/a/path/file.txt", "/a/path/file_R1.txt", "/a/path/file2_R.txt", "/a/path/file4_R.doc", "/a/path/file4_R.pdf", "/a/path/file5.pdf", "/a/path/file6", "/a/path/file6_R.png", "/a/path/file7.docx", "/a/path/file7_R", "/a/path/report.pdf", "/a/path/report_Redacted.pdf", "/a/path/memo.docx", "/a/path/memo_redacted1.docx"), 
+  "/another/path" -> List("/another/path/file3_R.txt", "/another/path/file3.txt", "/another/path/file3.doc", "/another/path/letter_Redacted2.txt", "/another/path/letter.txt")  
 )
 ```
+
 ----
 For the `/a/path` directory, it will filter out any file whose name (without extension, if present) has a non-empty base name and matches a supported redaction suffix pattern, `^(.+?)(?:_R|_Redacted|_redacted)\d*$`. This returns:
 
@@ -97,13 +129,22 @@ For the `/a/path` directory, it will filter out any file whose name (without ext
 "/a/path/file_R1.txt"
 "/a/path/file6_R.png"
 "/a/path/file7_R"
+"/a/path/report_Redacted.pdf"
+"/a/path/memo_redacted1.docx"
 ```
 
+The pattern matches files ending in `_R`, `_Redacted`, or `_redacted`, optionally followed by a number. For example:
+- `file_R1.txt` — matches `_R` followed by `1`
+- `report_Redacted.pdf` — matches `_Redacted`
+- `memo_redacted1.docx` — matches `_redacted` followed by `1`
+
 It will then filter any redacted file names with the same name ignoring the file extension. This gives:
+
 ```scala
 "/a/path/file4_R.pdf"
 "/a/path/file4_R.doc"
 ```
+
 These are returned with the error `DuplicateFileName`
 
 The remaining redacted files are checked against the non redacted files for original file matches.
@@ -116,14 +157,23 @@ The remaining redacted files are checked against the non redacted files for orig
 
 `file7_R` has no extension. Its name without extension is still `file7_R` which matches the redacted pattern. It needs a matching file called `file7.xxx` or `file7`. `file7.docx` is in the original array so this is returned as a matched pair.
 
+`report_Redacted.pdf` needs to have a matching file called `report.xxx` or `report`. `report.pdf` is in the original array so this is returned as a matched pair.
+
+`memo_redacted1.docx` needs to have a matching file called `memo.xxx` or `memo`. `memo.docx` is in the original array so this is returned as a matched pair.
+
 -----
-For the `/another/path` folder, this redacted file is found:
+For the `/another/path` folder, these redacted files are found:
+
 ```scala
 "/another/path/file3_R.txt"
+"/another/path/letter_Redacted2.txt"
 ```
-There is only one so there is no duplicate, so it then checks the original file list for a match. 
+
+For `file3_R.txt`, it checks the original file list for a match.
 We are looking for a file called `file3.xxx` or `file3` There are two files which match this, `file3.txt` and `file3.doc` 
 We can't tell which of these was the original file, so we return an `AmbiguousOriginalFile` error.
+
+For `letter_Redacted2.txt`, we are looking for a file called `letter.xxx` or `letter`. `letter.txt` is in the original array so this is returned as a matched pair.
 
 The lambda then returns this json:
 
@@ -147,6 +197,24 @@ The lambda then returns this json:
       "originalFilePath": "/a/path/file7.docx",
       "redactedFileId": "<file-id-13>",
       "redactedFilePath": "/a/path/file7_R"
+    },
+    {
+      "originalFileId": "<file-id-14>",
+      "originalFilePath": "/a/path/report.pdf",
+      "redactedFileId": "<file-id-15>",
+      "redactedFilePath": "/a/path/report_Redacted.pdf"
+    },
+    {
+      "originalFileId": "<file-id-16>",
+      "originalFilePath": "/a/path/memo.docx",
+      "redactedFileId": "<file-id-17>",
+      "redactedFilePath": "/a/path/memo_redacted1.docx"
+    },
+    {
+      "originalFileId": "<file-id-19>",
+      "originalFilePath": "/another/path/letter.txt",
+      "redactedFileId": "<file-id-18>",
+      "redactedFilePath": "/another/path/letter_Redacted2.txt"
     }
   ],
   "errors": [
@@ -169,33 +237,5 @@ The lambda then returns this json:
   ]
 }
 ```
-There is a [LambdaRunner](src/main/scala/uk/gov/nationalarchives/LambdaRunner.scala) class which will take a json string and run the Lambda. This can be used to test various inputs. 
 
-````
-This is the description of what the code block changes:
-<changeDescription>
-Clarify README wording to require a non-empty base filename before the redaction suffix, matching current matcher behavior.
-</changeDescription>
-
-This is the code block that represents the suggested code change:
-```markdown
-## Help & FAQ
-
-Redacted files are identified when the filename without its extension has a non-empty base name and ends with one of the supported redaction suffixes:
-`_R`, `_Redacted`, or `_redacted`. Each suffix can also be followed by digits, for example `file_R1`, `file_Redacted1`, or
-`file_redacted2`.
-
-For example, `file_R.docx`, `file_Redacted.pdf`, and `file_redacted1` are treated as redacted versions of `file`.
-Filenames made up only of a suffix, such as `_R`, are not treated as redacted files.
-If a user provides different supported redaction names for the same original, such as `file_R.docx` and
-`file_Redacted1.pdf`, both files can be matched to `file`. If two redacted files have the same filename ignoring the
-extension, such as `file_Redacted.docx` and `file_Redacted.pdf`, they are returned with the `DuplicateFileName` error.
-
-...existing code...
-
-For the `/a/path` directory, it will filter out any file whose name (without extension, if present) has a non-empty base name and matches a supported redaction suffix pattern, `^(.+?)(?:_R|_Redacted|_redacted)\d*$`. This returns:
-```
-<userPrompt>
-Provide the fully rewritten file, incorporating the suggested code change. You must produce the complete file.
-</userPrompt>
-
+There is a [LambdaRunner](src/main/scala/uk/gov/nationalarchives/LambdaRunner.scala) class which will take a json string and run the Lambda. This can be used to test various inputs.
