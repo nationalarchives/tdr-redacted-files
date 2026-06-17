@@ -27,7 +27,8 @@ object RedactedFileMatcher {
         .flatMap(redactedFilesByName => redactedFilesByName.files)
         .toList
 
-      val duplicateErrors: Seq[RedactedErrors] = redactedFilesWithDuplicateNames.map(dup => RedactedErrors(dup.fileId, duplicateFileNameError))
+      val duplicateErrors: Seq[RedactedFilePairs] = redactedFilesWithDuplicateNames.map(dup =>
+        RedactedFilePairs(None, duplicateFileNameError, dup.fileId, dup.filePath))
 
       val nonDuplicateRedactedFiles: Seq[FileName] = redactedFiles.diff(redactedFilesWithDuplicateNames)
 
@@ -35,9 +36,9 @@ object RedactedFileMatcher {
         val originalFileName = originalNameFor(redactedFile)
         val originalFiles = directoryFiles.files.filter(fileInDirectory => isOriginalFile(fileInDirectory, originalFileName))
         originalFiles match {
-          case head :: Nil => RedactedFilePairs(head.fileId, head.filePath, redactedFile.fileId, redactedFile.filePath)
-          case Nil => RedactedErrors(redactedFile.fileId, noOriginalFileError)
-          case _ => RedactedErrors(redactedFile.fileId, ambiguousOriginalFileError)
+          case head :: Nil => RedactedFilePairs(Some(head.fileId), head.filePath, redactedFile.fileId, redactedFile.filePath)
+          case Nil => RedactedFilePairs(None, noOriginalFileError, redactedFile.fileId, redactedFile.filePath)
+          case _ => RedactedFilePairs(None, ambiguousOriginalFileError, redactedFile.fileId, redactedFile.filePath)
         }
       }
 
