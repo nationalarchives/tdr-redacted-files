@@ -15,6 +15,7 @@ jobs:
       lambda-name: redacted-files
       repo-name: tdr-redacted-files
       artifact-name: redacted-files
+      java-version: 17
       build-command: |
         sbt assembly
     secrets:
