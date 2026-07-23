@@ -6,7 +6,7 @@ import java.nio.file.Paths
 import java.util.UUID
 
 object RedactedFileMatcher {
-  val noOriginalFileError = "NoOriginalFile"
+  val noOriginalFileErrorMessage = "No Original File Found"
   val ambiguousOriginalFileError = "AmbiguousOriginalFile"
   val duplicateFileNameError = "DuplicateFileName"
 
@@ -36,7 +36,7 @@ object RedactedFileMatcher {
         val originalFiles = directoryFiles.files.filter(fileInDirectory => isOriginalFile(fileInDirectory, originalFileName))
         originalFiles match {
           case head :: Nil => RedactedFilePairs(head.fileId, head.filePath, redactedFile.fileId, redactedFile.filePath)
-          case Nil => RedactedErrors(redactedFile.fileId, noOriginalFileError)
+          case Nil => RedactedFilePairs(redactedFile.fileId, noOriginalFileErrorMessage, redactedFile.fileId, redactedFile.filePath)
           case _ => RedactedErrors(redactedFile.fileId, ambiguousOriginalFileError)
         }
       }
