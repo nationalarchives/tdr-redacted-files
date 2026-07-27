@@ -24,6 +24,10 @@ lazy val root = (project in file("."))
   case _ => MergeStrategy.first
 }
 
+(assembly / assemblyOutputPath) := Def.uncached {
+  baseDirectory.value / "target" / "scala-2.13" / (assembly / assemblyJarName).value
+}
+
 (Test / fork) := true
 (Test / javaOptions) += s"-Dconfig.file=${sourceDirectory.value}/test/resources/application.conf"
 (Test / envVars) := Map("AWS_ACCESS_KEY_ID" -> "test", "AWS_SECRET_ACCESS_KEY" -> "test", "S3_ENDPOINT" -> "http://localhost:9005")
