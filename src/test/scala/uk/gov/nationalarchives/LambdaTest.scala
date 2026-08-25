@@ -36,7 +36,7 @@ class LambdaTest extends AnyFlatSpec with BeforeAndAfterAll {
 
     result.redactedFiles.size should equal(2)
     result.redactedFiles.head.redactedFilePath should equal("file_R1.txt")
-    result.redactedFiles.head.originalFilePath should equal(noOriginalFileError)
+    result.redactedFiles.head.originalFilePath should equal(noOriginalFileMessage)
     result.redactedFiles.last.redactedFilePath should equal("DTP_R.docx")
     result.redactedFiles.last.originalFilePath should equal("DTP.docx")
     result.errors.size should equal(0)
