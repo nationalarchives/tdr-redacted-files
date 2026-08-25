@@ -4,7 +4,7 @@ This lambda receives an object containing an S3 bucket and key.
 It reads that object from S3, parses the JSON, and inspects the `results` array of file paths.
 For each redacted file it finds, it either:
 - matches it to its original file, or
-- returns an error when a valid original cannot be determined.
+- returns a `RedactedFilePairs` entry with `No Original Found` when a valid original cannot be determined.
 
 Files are treated as redacted when the filename (without extension) matches
 `^(.+?)(?:_R|_Redacted|_redacted)\d*$`.
@@ -149,7 +149,7 @@ These are returned with the error `DuplicateFileName`
 
 The remaining redacted files are checked against the non redacted files for original file matches.
 
-`file2_R.txt` needs to have a matching file called `file2.xxx` or `file2` but this isn't in the original array so this returns an error of `NoOriginalFile`
+`file2_R.txt` needs to have a matching file called `file2.xxx` or `file2` but this isn't in the original array so it is returned as a pair with `No Original Found`
 
 `file_R1.txt` needs to have a matching file called `file.xxx` or `file` This is in the original array so this is returned as a matched pair.
 
@@ -187,6 +187,12 @@ The lambda then returns this json:
       "redactedFilePath": "/a/path/file_R1.txt"
     },
     {
+      "originalFileId": "<file-id-3>",
+      "originalFilePath": "No Original Found",
+      "redactedFileId": "<file-id-3>",
+      "redactedFilePath": "/a/path/file2_R.txt"
+    },
+    {
       "originalFileId": "<file-id-10>",
       "originalFilePath": "/a/path/file6",
       "redactedFileId": "<file-id-11>",
@@ -218,10 +224,6 @@ The lambda then returns this json:
     }
   ],
   "errors": [
-    {
-      "fileId": "<file-id-3>",
-      "cause": "NoOriginalFile"
-    },
     {
       "fileId": "<file-id-7>",
       "cause": "DuplicateFileName"

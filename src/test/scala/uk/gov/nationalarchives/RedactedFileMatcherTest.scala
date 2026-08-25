@@ -5,6 +5,7 @@ import org.scalatest.matchers.should.Matchers._
 import org.scalatest.prop.{TableDrivenPropertyChecks, TableFor1, TableFor2}
 import uk.gov.nationalarchives.BackendCheckUtils._
 import uk.gov.nationalarchives.RedactedFileMatcher._
+import uk.gov.nationalarchives.tdr.common.utils.statuses.StatusValues.NoOriginalFileValue.displayMessage
 
 import java.util.UUID
 
@@ -19,16 +20,16 @@ class RedactedFileMatcherTest extends AnyFlatSpec with TableDrivenPropertyChecks
     ("files", "expectedPairs"),
     (List("MyDocument.updated_R.docx", "MyDocument.updated.docx"), Map("MyDocument.updated_R.docx" -> "MyDocument.updated.docx")),
     (List("DTP__R.docx", "DTP_.docx"), Map("DTP__R.docx" -> "DTP_.docx")),
-    (List("DTP_R.docx"), Map("DTP_R.docx" -> noOriginalFileMessage)),
-    (List("DTP_R1.docx"), Map("DTP_R1.docx" -> noOriginalFileMessage)),
-    (List("DTP_Redacted.docx"), Map("DTP_Redacted.docx" -> noOriginalFileMessage)),
-    (List("DTP_redacted1.docx"), Map("DTP_redacted1.docx" -> noOriginalFileMessage)),
-    (List("DTP_R"), Map("DTP_R" -> noOriginalFileMessage)),
-    (List("DTP__R.docx", "DTP.docx"), Map("DTP__R.docx" -> noOriginalFileMessage)),
-    (List("/dir1/DTP_R.docx", "/dir1/dir2/DTP.docx"), Map("/dir1/DTP_R.docx" -> noOriginalFileMessage)),
-    (List("/dir1/dir2/DTP_R.docx", "/dir1/DTP.docx"), Map("/dir1/dir2/DTP_R.docx" -> noOriginalFileMessage)),
-    (List("/dir1/dir2/DTP_R.docx", "/dir1/dir3/DTP.docx"), Map("/dir1/dir2/DTP_R.docx" -> noOriginalFileMessage)),
-    (List("Anothe_Redacted_R.docx", "Anothe_Redacted.docx"), Map("Anothe_Redacted_R.docx" -> "Anothe_Redacted.docx", "Anothe_Redacted.docx" -> noOriginalFileMessage)),
+    (List("DTP_R.docx"), Map("DTP_R.docx" -> displayMessage)),
+    (List("DTP_R1.docx"), Map("DTP_R1.docx" -> displayMessage)),
+    (List("DTP_Redacted.docx"), Map("DTP_Redacted.docx" -> displayMessage)),
+    (List("DTP_redacted1.docx"), Map("DTP_redacted1.docx" -> displayMessage)),
+    (List("DTP_R"), Map("DTP_R" -> displayMessage)),
+    (List("DTP__R.docx", "DTP.docx"), Map("DTP__R.docx" -> displayMessage)),
+    (List("/dir1/DTP_R.docx", "/dir1/dir2/DTP.docx"), Map("/dir1/DTP_R.docx" -> displayMessage)),
+    (List("/dir1/dir2/DTP_R.docx", "/dir1/DTP.docx"), Map("/dir1/dir2/DTP_R.docx" -> displayMessage)),
+    (List("/dir1/dir2/DTP_R.docx", "/dir1/dir3/DTP.docx"), Map("/dir1/dir2/DTP_R.docx" -> displayMessage)),
+    (List("Anothe_Redacted_R.docx", "Anothe_Redacted.docx"), Map("Anothe_Redacted_R.docx" -> "Anothe_Redacted.docx", "Anothe_Redacted.docx" -> displayMessage)),
     (List("x.txt", "x_R1.txt", "x_R2.txt"), Map("x_R1.txt" -> "x.txt", "x_R2.txt" -> "x.txt")),
     (List("x.txt", "x_R.txt", "x_R2.txt"), Map("x_R.txt" -> "x.txt", "x_R2.txt" -> "x.txt")),
     (List("Anothe_R13_R14Redacted_R15.docx", "Anothe_R13_R14Redacted.docx"), Map("Anothe_R13_R14Redacted_R15.docx" -> "Anothe_R13_R14Redacted.docx")),

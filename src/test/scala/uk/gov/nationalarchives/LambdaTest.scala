@@ -13,6 +13,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers._
 import uk.gov.nationalarchives.BackendCheckUtils._
 import uk.gov.nationalarchives.RedactedFileMatcher._
+import uk.gov.nationalarchives.tdr.common.utils.statuses.StatusValues.NoOriginalFileValue.displayMessage
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import java.util.UUID
@@ -36,7 +37,7 @@ class LambdaTest extends AnyFlatSpec with BeforeAndAfterAll {
 
     result.redactedFiles.size should equal(2)
     result.redactedFiles.head.redactedFilePath should equal("file_R1.txt")
-    result.redactedFiles.head.originalFilePath should equal(noOriginalFileMessage)
+    result.redactedFiles.head.originalFilePath should equal(displayMessage)
     result.redactedFiles.last.redactedFilePath should equal("DTP_R.docx")
     result.redactedFiles.last.originalFilePath should equal("DTP.docx")
     result.errors.size should equal(0)
