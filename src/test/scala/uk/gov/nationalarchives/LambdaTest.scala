@@ -34,11 +34,12 @@ class LambdaTest extends AnyFlatSpec with BeforeAndAfterAll {
     val files = List("DTP_R.docx", "DTP.docx", "file_R1.txt")
     val result = runLambda(files)
 
-    result.redactedFiles.size should equal(1)
-    result.redactedFiles.head.redactedFilePath should equal("DTP_R.docx")
-    result.redactedFiles.head.originalFilePath should equal("DTP.docx")
-    result.errors.size should equal(1)
-    result.errors.head.cause should equal(noOriginalFileError)
+    result.redactedFiles.size should equal(2)
+    result.redactedFiles.head.redactedFilePath should equal("file_R1.txt")
+    result.redactedFiles.head.originalFilePath should equal(noOriginalFileError)
+    result.redactedFiles.last.redactedFilePath should equal("DTP_R.docx")
+    result.redactedFiles.last.originalFilePath should equal("DTP.docx")
+    result.errors.size should equal(0)
   }
 
   "run" should "handle extensionless original files through S3 round-trip" in {

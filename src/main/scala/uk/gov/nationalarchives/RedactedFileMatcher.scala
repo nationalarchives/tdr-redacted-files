@@ -36,7 +36,7 @@ object RedactedFileMatcher {
         val originalFiles = directoryFiles.files.filter(fileInDirectory => isOriginalFile(fileInDirectory, originalFileName))
         originalFiles match {
           case head :: Nil => RedactedFilePairs(head.fileId, head.filePath, redactedFile.fileId, redactedFile.filePath)
-          case Nil => RedactedErrors(redactedFile.fileId, noOriginalFileError)
+          case Nil => RedactedFilePairs(redactedFile.fileId, noOriginalFileError, redactedFile.fileId, redactedFile.filePath)//RedactedErrors(redactedFile.fileId, noOriginalFileError)
           case _ => RedactedErrors(redactedFile.fileId, ambiguousOriginalFileError)
         }
       }
