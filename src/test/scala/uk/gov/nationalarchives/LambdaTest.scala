@@ -13,6 +13,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers._
 import uk.gov.nationalarchives.BackendCheckUtils._
 import uk.gov.nationalarchives.RedactedFileMatcher._
+import uk.gov.nationalarchives.tdr.common.utils.statuses.StatusValues.NoOriginalFileValue.displayMessage
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import java.util.UUID
@@ -34,11 +35,13 @@ class LambdaTest extends AnyFlatSpec with BeforeAndAfterAll {
     val files = List("DTP_R.docx", "DTP.docx", "file_R1.txt")
     val result = runLambda(files)
 
-    result.redactedFiles.size should equal(1)
-    result.redactedFiles.head.redactedFilePath should equal("DTP_R.docx")
-    result.redactedFiles.head.originalFilePath should equal("DTP.docx")
-    result.errors.size should equal(1)
-    result.errors.head.cause should equal(noOriginalFileError)
+    result.redactedFiles.size should equal(2)
+    result.redactedFiles.head.redactedFilePath should equal("file_R1.txt")
+    result.redactedFiles.head.originalFilePath should equal(displayMessage)
+    result.redactedFiles.head.originalFileId shouldBe None
+    result.redactedFiles.last.redactedFilePath should equal("DTP_R.docx")
+    result.redactedFiles.last.originalFilePath should equal("DTP.docx")
+    result.errors.size should equal(0)
   }
 
   "run" should "handle extensionless original files through S3 round-trip" in {
@@ -58,6 +61,17 @@ class LambdaTest extends AnyFlatSpec with BeforeAndAfterAll {
     result.redactedFiles.size should equal(1)
     result.redactedFiles.head.originalFilePath should equal("DTP.docx")
     result.redactedFiles.head.redactedFilePath should equal("DTP_R")
+    result.errors shouldBe empty
+  }
+
+  "run" should "return no original file id when a redacted file has no match" in {
+    val files = List("DTP_R.txt")
+    val result = runLambda(files)
+
+    result.redactedFiles.size should equal(1)
+    result.redactedFiles.head.originalFileId shouldBe None
+    result.redactedFiles.head.originalFilePath should equal(displayMessage)
+    result.redactedFiles.head.redactedFilePath should equal("DTP_R.txt")
     result.errors shouldBe empty
   }
 
