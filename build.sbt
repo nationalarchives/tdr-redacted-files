@@ -10,6 +10,7 @@ lazy val root = (project in file("."))
     name := "tdr-redacted-files",
     libraryDependencies ++= Seq(
       backendCheckUtils,
+      tdrStatuses,
       circeCore,
       circeParser,
       circeGeneric,

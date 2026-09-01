@@ -1,12 +1,12 @@
 package uk.gov.nationalarchives
 
 import uk.gov.nationalarchives.BackendCheckUtils._
+import uk.gov.nationalarchives.tdr.common.utils.statuses.StatusValues.NoOriginalFileValue.displayMessage
 
 import java.nio.file.Paths
 import java.util.UUID
 
 object RedactedFileMatcher {
-  val noOriginalFileError = "NoOriginalFile"
   val ambiguousOriginalFileError = "AmbiguousOriginalFile"
   val duplicateFileNameError = "DuplicateFileName"
 
@@ -35,8 +35,8 @@ object RedactedFileMatcher {
         val originalFileName = originalNameFor(redactedFile)
         val originalFiles = directoryFiles.files.filter(fileInDirectory => isOriginalFile(fileInDirectory, originalFileName))
         originalFiles match {
-          case head :: Nil => RedactedFilePairs(head.fileId, head.filePath, redactedFile.fileId, redactedFile.filePath)
-          case Nil => RedactedErrors(redactedFile.fileId, noOriginalFileError)
+          case head :: Nil => RedactedFilePairs(Some(head.fileId), head.filePath, redactedFile.fileId, redactedFile.filePath)
+          case Nil => RedactedFilePairs(None, displayMessage, redactedFile.fileId, redactedFile.filePath)
           case _ => RedactedErrors(redactedFile.fileId, ambiguousOriginalFileError)
         }
       }
