@@ -149,7 +149,7 @@ These are returned with the error `DuplicateFileName`
 
 The remaining redacted files are checked against the non redacted files for original file matches.
 
-`file2_R.txt` needs to have a matching file called `file2.xxx` or `file2` but this isn't in the original array so it is returned as a pair with `No Original Found`
+`file2_R.txt` needs to have a matching file called `file2.xxx` or `file2` but this isn't in the original array so it is returned as a pair with `No Original Found`. In this case `originalFileId` is `null`.
 
 `file_R1.txt` needs to have a matching file called `file.xxx` or `file` This is in the original array so this is returned as a matched pair.
 
@@ -187,7 +187,7 @@ The lambda then returns this json:
       "redactedFilePath": "/a/path/file_R1.txt"
     },
     {
-      "originalFileId": "<file-id-3>",
+      "originalFileId": null,
       "originalFilePath": "No Original Found",
       "redactedFileId": "<file-id-3>",
       "redactedFilePath": "/a/path/file2_R.txt"

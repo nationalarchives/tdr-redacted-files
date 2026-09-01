@@ -38,6 +38,7 @@ class LambdaTest extends AnyFlatSpec with BeforeAndAfterAll {
     result.redactedFiles.size should equal(2)
     result.redactedFiles.head.redactedFilePath should equal("file_R1.txt")
     result.redactedFiles.head.originalFilePath should equal(displayMessage)
+    result.redactedFiles.head.originalFileId shouldBe None
     result.redactedFiles.last.redactedFilePath should equal("DTP_R.docx")
     result.redactedFiles.last.originalFilePath should equal("DTP.docx")
     result.errors.size should equal(0)
@@ -60,6 +61,17 @@ class LambdaTest extends AnyFlatSpec with BeforeAndAfterAll {
     result.redactedFiles.size should equal(1)
     result.redactedFiles.head.originalFilePath should equal("DTP.docx")
     result.redactedFiles.head.redactedFilePath should equal("DTP_R")
+    result.errors shouldBe empty
+  }
+
+  "run" should "return no original file id when a redacted file has no match" in {
+    val files = List("DTP_R.txt")
+    val result = runLambda(files)
+
+    result.redactedFiles.size should equal(1)
+    result.redactedFiles.head.originalFileId shouldBe None
+    result.redactedFiles.head.originalFilePath should equal(displayMessage)
+    result.redactedFiles.head.redactedFilePath should equal("DTP_R.txt")
     result.errors shouldBe empty
   }
 
