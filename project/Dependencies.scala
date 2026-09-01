@@ -3,11 +3,13 @@ import sbt._
 
 object Dependencies {
   private val circeVersion = "0.14.16"
+  private val commonUtilsVersion = "0.0.49"
 
-  lazy val backendCheckUtils = "uk.gov.nationalarchives" %% "tdr-backend-checks-utils" % "0.1.241"
+  lazy val backendCheckUtils = "uk.gov.nationalarchives" %% "tdr-backend-checks-utils" % "0.1.245"
   lazy val circeCore = "io.circe" %% "circe-core" % circeVersion
   lazy val circeParser = "io.circe" %% "circe-parser" % circeVersion
   lazy val circeGeneric = "io.circe" %% "circe-generic" % circeVersion
+  lazy val tdrStatuses = "uk.gov.nationalarchives" %% "tdr-statuses" % commonUtilsVersion
   lazy val scalaTest = "org.scalatest" %% "scalatest" % "3.2.20"
   lazy val wiremock = "com.github.tomakehurst" % "wiremock" % "3.0.1"
 }
