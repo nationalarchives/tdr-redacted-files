@@ -1,19 +1,18 @@
 package uk.gov.nationalarchives
 
 import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.client.WireMock.{anyUrl, get, ok, put, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.http.RequestMethod
 import io.circe.Printer
 import io.circe.Printer.noSpaces
-import io.circe.syntax._
-import io.circe.parser.decode
 import io.circe.generic.auto._
+import io.circe.parser.decode
+import io.circe.syntax._
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers._
 import uk.gov.nationalarchives.BackendCheckUtils._
-import uk.gov.nationalarchives.RedactedFileMatcher._
-import uk.gov.nationalarchives.tdr.common.utils.statuses.StatusValues.NoOriginalFileValue.displayMessage
+import uk.gov.nationalarchives.tdr.common.utils.statuses.StatusValues.NoOriginalFileValue
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import java.util.UUID
@@ -37,7 +36,7 @@ class LambdaTest extends AnyFlatSpec with BeforeAndAfterAll {
 
     result.redactedFiles.size should equal(2)
     result.redactedFiles.head.redactedFilePath should equal("file_R1.txt")
-    result.redactedFiles.head.originalFilePath should equal(displayMessage)
+    result.redactedFiles.head.originalFilePath should equal(NoOriginalFileValue.value)
     result.redactedFiles.head.originalFileId shouldBe None
     result.redactedFiles.last.redactedFilePath should equal("DTP_R.docx")
     result.redactedFiles.last.originalFilePath should equal("DTP.docx")
@@ -70,7 +69,7 @@ class LambdaTest extends AnyFlatSpec with BeforeAndAfterAll {
 
     result.redactedFiles.size should equal(1)
     result.redactedFiles.head.originalFileId shouldBe None
-    result.redactedFiles.head.originalFilePath should equal(displayMessage)
+    result.redactedFiles.head.originalFilePath should equal(NoOriginalFileValue.value)
     result.redactedFiles.head.redactedFilePath should equal("DTP_R.txt")
     result.errors shouldBe empty
   }
