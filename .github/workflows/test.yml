@@ -15,6 +15,7 @@ jobs:
       contents: write
     with:
       repo-name: tdr-redacted-files
+      java-version: ${{vars.JAVA_RUNTIME}}
       test-command: |
         sbt test
     secrets:
