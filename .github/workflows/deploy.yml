@@ -23,12 +23,13 @@ permissions:
   contents: write
 jobs:
   deploy:
-    uses: nationalarchives/tdr-github-actions/.github/workflows/lambda_deploy.yml@f563794aa48b4ea16cae01caf704aa241a37539f # v0.0.48
+    uses: nationalarchives/tdr-github-actions/.github/workflows/lambda_deploy.yml@714115ab533f9f6b0b4fed5a4293e9d57c2b89d8 # v0.0.48
     with:
       lambda-name: redacted-files
       deployment-package: redacted-files.jar
       environment: ${{ github.event.inputs.environment }}
       to-deploy: ${{ github.event.inputs.to-deploy }}
+      account-regional-code-bucket: true
     secrets:
       ACCOUNT_NUMBER: ${{ secrets.ACCOUNT_NUMBER }}
       MANAGEMENT_ACCOUNT: ${{ secrets.MANAGEMENT_ACCOUNT }}
